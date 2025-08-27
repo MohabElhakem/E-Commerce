@@ -8,26 +8,49 @@ const token = require(path.join(__dirname,'..','middleware','tokens.js'));
 
 const signup = async(req , res)=>{
     try {
-        const data = req.body;
-    
+        const {username , email , password , role ,address} = req.body;
+        // chick if he have all the sata needed to proceed
+        if(!username || !email || !password || !role ){
+            return res.status(400).json({message:"❌ Missing required field"})
+        }
         //hash the password dont send it raw 
-        const hashedPassword = await bcrypt.hash(data.password,10);
-    
-        const BUYER =  await user.buyer.create({
-            username : data.username,
-            password : hashedPassword,
-            email : data.email,
-            address: data.address,
-        });
-    
-        //create a token for the user and then send it for the front end
-        const authToken = token.createToken(BUYER,{expiresIn : '5h'});
-    
-        console.log("✔︎token generated successfully\n",authToken);
-        return res.status(201).json({
-            message: "Welcom to our store 🏬 ",
-            token: authToken,
-        });
+        const hashedPassword = await bcrypt.hash(password,10);
+
+        //Buyer Role Signup
+        if (role === "Buyer") {
+            const BUYER =  await user.buyer.create({
+                username,
+                password : hashedPassword,
+                email,
+                address,
+            });
+        
+            //create a token for the user and then send it for the front end
+            const authToken = token.createBuyerToken(BUYER);
+        
+            console.log("✔︎token generated successfully\n",authToken);
+            return res.status(201).json({
+                message: "Welcom to our store 🏬 ",
+                token: authToken,
+            });
+
+        //Store role signup
+        }else if (role === "store"){
+            //create a token to make him go for the steup of the store
+            const Info = {
+                username,
+                hashedPassword,
+                email,
+            }
+            const setupToken = token.createTempToken(Info);
+            console.log("Temp token :\n",setupToken);
+            return res.status(200).json({
+                message: "May you read our conditions and procssed with setting up your store",
+                token: setupToken
+            })
+
+
+        }
     } catch (error) {
 
         if (error.code === 11000){
@@ -97,13 +120,7 @@ const login = async (req ,res)=> {
     DBuser.banEx = null;
     await DBuser.save();
 
-    //create the token
-    const authToken = token.createToken(DBuser,{expiresIn : '5h'});
-    
-    console.log("✔︎token generated successfully\n",authToken);
-    return res.status(201).json({
-            message: "Login Successful ✅ ",
-            token: authToken,
-    });
+    //next step creating the tokens basied on roles and condetions 
+    //still in progress 
 
 }
