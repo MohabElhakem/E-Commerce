@@ -62,3 +62,5 @@ const productSchema = mongoose.Schema({
     //this.category means to but the category name of this instance of the document
     //validate in an option that every field could have in mongo
 })
+const product = mongoose.model('product',productSchema);
+module.exports= product;
