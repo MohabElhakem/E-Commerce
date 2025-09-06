@@ -34,11 +34,11 @@ class token {
 ///
 ///
 //Start With the Child Tokens
-class BuyerT extends token {
+class BuyerAccess extends token {
 
     constructor(){
         //parent constructors 
-        super( "4h"  ,  process.env.JWT_BUYER_TOKEN_SECRET  );
+        super( "4h"  ,  process.env.JWT_BUYER_ACCESS_SECRET  );
     }
 
 //Create Method 
@@ -47,14 +47,16 @@ class BuyerT extends token {
             username,
             email,
             _id,
-            name: "buyer token",
+            name: "buyer access token",
             role: "buyer",
-            TSTC: this.getSecret()
+            TSTC: this.getSecret(),
+            type: "BA"
+            
         };
         
         const token = jwt.sign(this.payload,process.env.JWT_GLOBAL_SECRET ,{expiresIn:this.ex});
 
-        console.log("The Buyer Token Is\n",token);
+        console.log("The Buyer access Token Is\n",token);
         return token;
     }
 
@@ -68,14 +70,50 @@ class BuyerT extends token {
 ///
 ///
 ///
-class StoreRefreshT extends token {
+class BuyerRefresh extends token {
+
+    constructor(){
+        //parent constructors 
+        super( "30d"  ,  process.env.JWT_BUYER_REFRESH_SECRET  );
+    }
+
+//Create Method 
+    create(username,email,_id){
+        this.payload={
+            username,
+            email,
+            _id,
+            name: "buyer refresh token",
+            role: "buyer",
+            TSTC: this.getSecret(),
+            type: "BR"
+        };
+        
+        const token = jwt.sign(this.payload,process.env.JWT_GLOBAL_SECRET ,{expiresIn:this.ex});
+
+        console.log("The Buyer Refresh Token Is\n",token);
+        return token;
+    }
+
+//Verify Method
+    verify(DecodedPayLoad){
+        return (DecodedPayLoad.TSTC === this.getSecret());
+    }
+}
+
+///
+///
+///
+///
+///
+class StoreRefresh extends token {
     constructor(){
         //parent constructors
         super("180d", process.env.JWT_STORE_REFRESH_SECRET);
     }
 
 //Create Method
-    create(username,email,_id,type){
+    create(username,email,_id){
         this.payload={
             username,
             email,
@@ -83,7 +121,7 @@ class StoreRefreshT extends token {
             name: "store refresh token",
             role : "store",
             TSTC: this.getSecret(),
-            type,
+            type: "SR"
         };
 
         const token = jwt.sign(this.payload,process.env.JWT_GLOBAL_SECRET ,{expiresIn:this.ex} );
@@ -104,12 +142,12 @@ class StoreRefreshT extends token {
 ///
 ///
 ///
-class StoreAccessT extends token{
+class StoreAccess extends token{
     constructor(){
         super("30m",process.env.JWT_STORE_ACCESS_SECRET);
     }
 //Create Method
-    create(username,email,_id,type){
+    create(username,email,_id){
         this.payload={
             username,
             email,
@@ -117,7 +155,7 @@ class StoreAccessT extends token{
             name: "store access token",
             role : "store",
             TSTC: this.getSecret(),
-            type,
+            type: "AC"
         };
 
         const token = jwt.sign(this.payload,process.env.JWT_GLOBAL_SECRET ,{expiresIn:this.ex} );
@@ -133,3 +171,5 @@ class StoreAccessT extends token{
     }
 
 }
+
+module.exports={ BuyerAccess , BuyerRefresh , StoreAccess , StoreRefresh };
