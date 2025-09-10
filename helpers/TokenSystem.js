@@ -47,7 +47,7 @@ class BuyerAccess extends token {
             username,
             email,
             _id,
-            name: "buyer access token",
+            name: "BuyerAccess",
             role: "buyer",
             TSTC: this.getSecret(),
             type: "BA"
@@ -83,7 +83,7 @@ class BuyerRefresh extends token {
             username,
             email,
             _id,
-            name: "buyer refresh token",
+            name: "BuyerRefresh",
             role: "buyer",
             TSTC: this.getSecret(),
             type: "BR"
@@ -118,7 +118,7 @@ class StoreRefresh extends token {
             username,
             email,
             _id,
-            name: "store refresh token",
+            name: "StoreRefresh",
             role : "store",
             TSTC: this.getSecret(),
             type: "SR"
@@ -152,7 +152,7 @@ class StoreAccess extends token{
             username,
             email,
             _id,
-            name: "store access token",
+            name: "StoreAccess",
             role : "store",
             TSTC: this.getSecret(),
             type: "AC"

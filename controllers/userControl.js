@@ -1,6 +1,6 @@
 const path = require('path');
 const tokenC = require(path.join(__dirname,'..','helpers','TokenSystem.js'));
-const tokenD = require(path.join(__dirname,'..','database','token.js'));
+const tokenDB = require(path.join(__dirname,'..','database','token.js'));
 const user = require(path.join(__dirname, '..', 'database', 'user.js'));
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -37,7 +37,7 @@ const signup = async(req,res)=>{
             //give him an referesh token and put it in the http and database
             const BR = new tokenC.BuyerRefresh();
             const tokenR = BR.create(username,email,U._id);
-            await tokenD.create({
+            await tokenDB.create({
                 holder_id: U._id,
                 Type: "buyer",
                 expiresAt : new Date(Date.now() + 30*24*60*60*1000),
@@ -87,7 +87,7 @@ const signup = async(req,res)=>{
             //now give him the refresh token and put it in the coockies and the DB
             const SC = new tokenC.StoreRefresh();
             const Rtoken = SC.create(username,email,U._id);
-            await tokenD.create({
+            await tokenDB.create({
                 holder_id : U._id,
                 Type : "store",
                 expiresAt: new Date( Date.now() + 180*24*60*60*1000),
@@ -194,7 +194,7 @@ const login = async(req , res)=>{
     
         if(remember_me === true){
     
-            const user_token = await tokenD.findOne({holder_id: DBuser._id})
+            const user_token = await tokenDB.findOne({holder_id: DBuser._id})
             if(user_token){     
                 res.cookie("refreshToken",user_token.token,{
                     httpOnly: true,
@@ -243,9 +243,9 @@ const refresh = async(req ,res)=>{
     let reToken = req.cookies.refreshToken;
     if(!reToken ){
  
-     const T = await tokenD.findOne({holder_id: req.re_id});
+     const T = await tokenDB.findOne({holder_id: req.re_id});
      if (!T){
-         return res.status(401),json({error:"there is no refresh token anywhere git him to the special route.."});
+         return res.status(401).json({error:"there is no refresh token anywhere git him to the special route.."});
      }
      reToken = T.token;
     }
@@ -287,7 +287,7 @@ const refresh = async(req ,res)=>{
     }
    } catch (error) {
     if (error.name === 'TokenExpiredError'){
-        await tokenD.deleteOne({ token: reToken });
+        await tokenDB.deleteOne({ token: reToken });
         return res.status(401).json({error: "token is expired send him to his refresh token refresh route"})
     }
     else{

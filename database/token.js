@@ -3,7 +3,8 @@ const mongoose = require("mongoose");
 const tokenSchema = mongoose.Schema({
     holder_id :{ 
         type : mongoose.Types.ObjectId,
-        required : true 
+        required : true ,
+        index: true,
     },
     status: {
         type: String,
@@ -15,6 +16,11 @@ const tokenSchema = mongoose.Schema({
         enum :["store","buyer","admin"],
         required: true,
     },
+    subType:{
+        type: String,
+        enum: ['BA' , 'BR','SA', 'SR'],
+        required: true,
+    },
     expiresAt:{
         type: Date,
         index: {expires:0} // <-- TTL ndex
@@ -22,7 +28,8 @@ const tokenSchema = mongoose.Schema({
     token:{
         type:String,
         required: true,
-        unique : true
+        unique : true,
+        index : true,
     }
 
 })
