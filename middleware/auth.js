@@ -57,6 +57,7 @@ const auth = async (req , res , next )=>{
         if(error.name === 'TokenExpiredError'){
             const decoded = jwt.verify(token, process.env.JWT_GLOBAL_SECRET, { ignoreExpiration: true });
             req.re_id = decoded._id;
+            req.userpayload = decoded;
             return res.status(401).json({error: 'Token is expired go to auto refresh'});
         }
         
@@ -65,4 +66,21 @@ const auth = async (req , res , next )=>{
     }
 }
 
-module.exports = {auth};
+function roleAuth (role){
+    return (req , res ,next )=>{
+
+        const roleMap={
+            store:tokenC.StoreAccess,
+            buyer:tokenC.BuyerAccess
+        }
+
+        const Class = roleMap[role];
+        const verify = new Class().verify(req.userPayload);
+        if (!verify){
+            return res.status(403).json({error: "not the proper role for this route"});
+        }
+       return next();
+    }
+}
+
+module.exports = {auth, roleAuth};
