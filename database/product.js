@@ -53,6 +53,11 @@ const productSchema = mongoose.Schema({
             message : props=> `${props.value} is not a valid subcategory of ${props.instance.category}`
         }
     },
+    inStock:{
+        type: Boolean,
+        required: true,
+        default : true,
+    }
     //#region 
     //key concepts▼
     // if you have an object of keys and value then object[key] means The Value
